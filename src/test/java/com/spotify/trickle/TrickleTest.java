@@ -519,4 +519,26 @@ public class TrickleTest {
   }
 
 
+  @Test
+  public void shouldAllowPassingGraphsAsParameters() throws Exception {
+    Func1<String, Integer> node2 = new Func1<String, Integer>() {
+      @Override
+      public ListenableFuture<Integer> run(String arg) {
+        return immediateFuture(arg.length());
+      }
+    };
+    Input<String> input = Input.named("input");
+    Graph<Integer> g2 = call(node2).with(input);
+
+    Func0<String> node1 = new Func0<String>() {
+      @Override
+      public ListenableFuture<String> run() {
+        return immediateFuture("hello");
+      }
+    };
+    Graph<String> g1 = call(node1);
+
+    assertThat(g2.bind(input, g1).run().get(), equalTo(5));
+  }
+
 }

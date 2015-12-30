@@ -152,6 +152,11 @@ class GraphBuilder<R> extends ConfigurableGraph<R> {
   }
 
   @Override
+  public <P> Graph<R> bind(Input<P> input, Graph<P> inputGraph) {
+    return bind(input, inputGraph.run());
+  }
+
+  @Override
   public ListenableFuture<R> run() {
     return new PreparedGraph<R>(this, debug).run();
   }

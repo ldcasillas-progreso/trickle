@@ -48,6 +48,17 @@ public abstract class Graph<T> implements Parameter<T>, NodeInfo {
   public abstract <P> Graph<T> bind(Input<P> input, ListenableFuture<P> inputFuture);
 
   /**
+   * Bind an input parameter to another graph. This means that nodes using this as inputs will not
+   * get invoked until a future produced by the input graph has completed.
+   *
+   * @param input      input to bind
+   * @param inputGraph graph for value to use
+   * @param <P>        type of the parameter
+   * @return a new graph instance that has the value bound
+   */
+  public abstract <P> Graph<T> bind(Input<P> input, Graph<P> inputGraph);
+
+  /**
    * Run the graph, executing all node methods on the thread that completes the underlying future.
    * This is equivalent to calling {@link #run(java.util.concurrent.Executor)} with {@link
    * com.google.common.util.concurrent.MoreExecutors#sameThreadExecutor()}.
