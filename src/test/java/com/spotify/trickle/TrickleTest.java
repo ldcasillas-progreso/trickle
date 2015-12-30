@@ -44,6 +44,7 @@ import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static com.spotify.trickle.Fallbacks.always;
 import static com.spotify.trickle.Trickle.call;
 import static com.spotify.trickle.Util.hasAncestor;
+import static junit.framework.TestCase.fail;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -566,5 +567,51 @@ public class TrickleTest {
     assertThat(future.get(), equalTo(9));
   }
 
+
+  @Test
+  public void shouldAllowPassingGraphsAsParameters() throws Exception {
+    Func1<String, Integer> node2 = new Func1<String, Integer>() {
+      @Override
+      public ListenableFuture<Integer> run(String arg) {
+        return immediateFuture(arg.length());
+      }
+    };
+    Input<String> input = Input.named("input");
+    Graph<Integer> g2 = call(node2).with(input);
+
+    Func0<String> node1 = new Func0<String>() {
+      @Override
+      public ListenableFuture<String> run() {
+        return immediateFuture("hello");
+      }
+    };
+    Graph<String> g1 = call(node1);
+
+    assertThat(g2.bind(input, g1).run().get(), equalTo(5));
+  }
+
+  @Test(expected=IllegalArgumentException.class)
+  public void shouldNotAllowCircularBoundInputs() throws Exception {
+    Func1<String, String> toUpper = new Func1<String, String>() {
+      @Override
+      public ListenableFuture<String> run(String arg) {
+        return immediateFuture(arg.toUpperCase());
+      }
+    };
+    Input<String> upperInput = Input.named("upperInput");
+    Graph<String> upper = call(toUpper).with(upperInput);
+
+    Func1<String, String> toLower = new Func1<String, String>() {
+      @Override
+      public ListenableFuture<String> run(String arg) {
+        return immediateFuture(arg.toLowerCase());
+      }
+    };
+    Input<String> lowerInput = Input.named("lowerInput");
+    Graph<String> lower = call(toLower).with(lowerInput);
+
+    lower.bind(upperInput, upper.bind(lowerInput, upper)).run().get();
+    fail("Somehow we managed to run a circular graph");
+  }
 
 }

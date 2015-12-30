@@ -74,6 +74,11 @@ final class PreparedGraph<R> extends Graph<R> {
   }
 
   @Override
+  public <P> Graph<R> bind(Input<P> input, Graph<P> inputGraph) {
+    return bind(input, inputGraph.run());
+  }
+
+  @Override
   public Graph<R> debug(boolean debug) {
     return new PreparedGraph<R>(graph, inputBindings, debug);
   }
