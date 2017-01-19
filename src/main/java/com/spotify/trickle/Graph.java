@@ -50,7 +50,7 @@ public abstract class Graph<T> implements Parameter<T>, NodeInfo {
   /**
    * Run the graph, executing all node methods on the thread that completes the underlying future.
    * This is equivalent to calling {@link #run(java.util.concurrent.Executor)} with {@link
-   * com.google.common.util.concurrent.MoreExecutors#sameThreadExecutor()}.
+   * com.google.common.util.concurrent.MoreExecutors#directExecutor()}.
    *
    * @return a future for the value returned by the graph execution
    * @throws IllegalArgumentException if not all {@link Input}s used in node invocations are bound

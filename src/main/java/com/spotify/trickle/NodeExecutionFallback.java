@@ -16,7 +16,7 @@
 
 package com.spotify.trickle;
 
-import com.google.common.util.concurrent.FutureFallback;
+import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -26,7 +26,7 @@ import static com.spotify.trickle.GraphExceptionWrapper.wrapException;
 /**
  * Fallback that handles errors when executing a graph node.
  */
-class NodeExecutionFallback<R> implements FutureFallback<R> {
+class NodeExecutionFallback<R> implements AsyncFunction<Throwable, R> {
 
   private final TraverseState.FutureCallInformation currentCall;
   private final TraverseState state;
@@ -41,7 +41,7 @@ class NodeExecutionFallback<R> implements FutureFallback<R> {
   }
 
   @Override
-  public ListenableFuture<R> create(Throwable t) {
+  public ListenableFuture<R> apply(Throwable t) {
     if (graph.getFallback().isPresent()) {
       try {
         return graph.getFallback().get().apply(t);

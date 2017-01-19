@@ -80,7 +80,7 @@ public class PackageSanityTest extends AbstractPackageSanityTests {
 
     setDefault(Graph.class, graphBuilder);
     setDefault(GraphBuilder.class, graphBuilder);
-    setDefault(TraverseState.class, TraverseState.empty(MoreExecutors.sameThreadExecutor(), false));
+    setDefault(TraverseState.class, TraverseState.empty(MoreExecutors.directExecutor(), false));
     setDefault(TraverseState.FutureCallInformation.class, NO_INFO);
     setDefault(CallInfo.class,
                new CallInfo(graphBuilder, Collections.<ParameterValue<?>>emptyList()));

@@ -66,7 +66,7 @@ public class GraphExceptionWrapperTest {
     t = new RuntimeException("the original problem");
 
     Map<Input<?>, Object> emptyMap = Collections.emptyMap();
-    traverseState = new TraverseState(emptyMap, MoreExecutors.sameThreadExecutor(), true);
+    traverseState = new TraverseState(emptyMap, MoreExecutors.directExecutor(), true);
 
     List<? extends NodeInfo> currentNodeParameters = ImmutableList.of(
         new FakeNodeInfo("arg1", Collections .<NodeInfo>emptyList()),

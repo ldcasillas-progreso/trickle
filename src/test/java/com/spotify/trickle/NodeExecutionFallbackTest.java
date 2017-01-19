@@ -60,7 +60,7 @@ public class NodeExecutionFallbackTest {
         .thenReturn(Optional.<AsyncFunction<Throwable, String>>absent());
 
     Map<Input<?>, Object> emptyMap = Collections.emptyMap();
-    traverseState = new TraverseState(emptyMap, MoreExecutors.sameThreadExecutor(), true);
+    traverseState = new TraverseState(emptyMap, MoreExecutors.directExecutor(), true);
 
     List<? extends NodeInfo> currentNodeParameters = ImmutableList.of();
 
@@ -77,7 +77,7 @@ public class NodeExecutionFallbackTest {
   public void shouldNotWrapGraphExecutionException() throws Exception {
     Throwable expected = new GraphExecutionException(null, currentCallInfo, NO_CALLS);
 
-    ListenableFuture<String> future = fallback.create(expected);
+    ListenableFuture<String> future = fallback.apply(expected);
 
     try {
       future.get();
@@ -91,7 +91,7 @@ public class NodeExecutionFallbackTest {
   public void shouldWrapGeneralException() throws Exception {
     Throwable expected = new RuntimeException("expected");
 
-    ListenableFuture<String> future = fallback.create(expected);
+    ListenableFuture<String> future = fallback.apply(expected);
 
     try {
       future.get();
@@ -115,7 +115,7 @@ public class NodeExecutionFallbackTest {
 
     Throwable expected = new GraphExecutionException(null, currentCallInfo, NO_CALLS);
 
-    ListenableFuture<String> future = fallback.create(expected);
+    ListenableFuture<String> future = fallback.apply(expected);
 
     assertThat(future.get(), equalTo("all is well, nothing to see here"));
   }

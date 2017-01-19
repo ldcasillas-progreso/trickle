@@ -30,12 +30,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.ImmutableList.builder;
 import static com.google.common.util.concurrent.Futures.allAsList;
-import static com.google.common.util.concurrent.MoreExecutors.sameThreadExecutor;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 /**
  * A decorator class for Graph that holds bound values for input names thus making
@@ -80,7 +78,7 @@ final class PreparedGraph<R> extends Graph<R> {
 
   @Override
   public ListenableFuture<R> run() {
-    return run(sameThreadExecutor());
+    return run(directExecutor());
   }
 
   @Override
@@ -117,15 +115,17 @@ final class PreparedGraph<R> extends Graph<R> {
 
     checkArgument(graph.getInputs().size() == futures.size(), "sanity check result: insane");
 
-    return Futures.withFallback(
+    return Futures.catchingAsync(
         nodeFuture(futures, allFuture, state.getExecutor()),
-        new NodeExecutionFallback<R>(graph, currentCall, state));
+        Exception.class,
+        new NodeExecutionFallback<R>(graph, currentCall, state)
+    );
   }
 
   private ListenableFuture<R> nodeFuture(final ImmutableList<ListenableFuture<?>> values,
                                          final ListenableFuture<List<Object>> doneSignal,
                                          final Executor executor) {
-    return Futures.transform(
+    return Futures.transformAsync(
         doneSignal,
         new AsyncFunction<List<Object>, R>() {
           @Override
